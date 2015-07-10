@@ -27,8 +27,8 @@ For all the other formats `NUMBER{UNIT}` will be replaced with `NUMBER UNIT`.
 
 You can apply filters in pandoc with the the `--filter` option.
 
-As an example, if you have the `siunitx-filter.py` filter and a `test.md`
-file in the same folder you can convert `test.md` using the filter with the
-following command
+As an example, if you have the `siunitx-filter.py` filter and a
+`siunitx_sample.md` file in the same folder you can convert `siunitx_sample.md` using
+the filter with the following command
 
-    pandoc --filter=./siunitx-filter.py test.md -o test.html
+    pandoc --filter=./siunitx-filter.py siunitx_sample.md -o siunitx_sample.html

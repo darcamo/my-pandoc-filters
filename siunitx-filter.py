@@ -27,8 +27,14 @@ import re
 # Match something such as '10{ms}'. 30{Htz}
 # The regex will catch two groups. the first group is the number and the
 # second group is the unit.
-pattern = re.compile(r'([0-9\.\,]+?){(.+?)}')
-
+#pattern = re.compile(r'([\d\.\,\']+?){(.+?)}')
+# Match numbers in scientific notation
+pattern = re.compile(
+    ('(\d+\.?\d*'  # Match either float numbers ...
+     '|'           # or ...
+     '\d+\.?\d*[eE][+-]\d+)'  # scientific notation
+     '{(.+?)}')  # Followed by the unit inside {}
+)
 
 def caps(key, value, format, meta):
     if key == 'Str':

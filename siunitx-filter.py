@@ -24,11 +24,9 @@ from pandocfilters import toJSONFilter, Str, RawInline
 import re
 
 
-# Match something such as '10{ms}'. 30{Htz}
+# Match something such as '10{ms}', 30{Htz}, etc.
 # The regex will catch two groups. the first group is the number and the
 # second group is the unit.
-#pattern = re.compile(r'([\d\.\,\']+?){(.+?)}')
-# Match numbers in scientific notation
 pattern = re.compile(
     ('(\d+\.?\d*'  # Match either float numbers ...
      '|'           # or ...
@@ -38,10 +36,21 @@ pattern = re.compile(
 
 def caps(key, value, format, meta):
     if key == 'Str':
-        m = pattern.match(value)
+        m = pattern.search(value)
         if m:
+            # Start of the string (before the match). As an example, if
+            # value is "(1.3{ms})." the match will find "1.3{ms}" and start
+            # will be "(".
+            start = value[:m.start()]
+            # Continuing the previous example, end will be ")."
+            end = value[m.end():]
             number = m.group(1)
             unit = m.group(2)
+
+            # Note that sometimes the regex will match with a 'start' that
+            # we don't want. Ex: In "127.0.0.0{IP}" it will match the final
+            # "0.0{IP}". But for now we are not handling these cases.
+            
             if format == 'html':
                 # The whole number with unit is surrounded by a
                 # "phy-quantity" span. The number if surrounded by a
@@ -49,12 +58,14 @@ def caps(key, value, format, meta):
                 # "phy-unit" span
                 return RawInline(
                     "html",
+                    start +
                     "<span class=\"phy-quantity\">" +
                     "<span class=\"phy-number\">" + number.strip() +
                     "</span>" +  # End of phy-number span
                     "<span class=\"phy-unit\">" + unit.strip() +
                     "</span>" +  # End of phy-unit span
-                    "</span>"    # End of phy-quantity span
+                    "</span>" +  # End of phy-quantity span
+                    end
                 )
             elif format == 'latex':
                 return RawInline(

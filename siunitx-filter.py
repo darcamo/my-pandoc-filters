@@ -7,7 +7,7 @@ Pandoc filter to use numbers with physical units.
 In markdown you should write NUMBER{UNIT}.
 Ex: 10{ms}, 2.6{GHz}, etc
 
-The filter will then separate the number and the unit. 
+The filter will then separate the number and the unit.
 
 In latex it will be replaced with \SI{NUMBER}{UNIT};
 
@@ -30,50 +30,46 @@ import re
 pattern = re.compile(
     ('(\d+\.?\d*'  # Match either float numbers ...
      '|'           # or ...
-     '\d+\.?\d*[eE][+-]\d+)'  # scientific notation
+     '\d+\.?\d*[eE][+-]\d+)'  # numbers in scientific notation
      '{(.+?)}')  # Followed by the unit inside {}
 )
 
-def caps(key, value, format, meta):
-    if key == 'Str':
-        m = pattern.search(value)
-        if m:
-            # Start of the string (before the match). As an example, if
-            # value is "(1.3{ms})." the match will find "1.3{ms}" and start
-            # will be "(".
-            start = value[:m.start()]
-            # Continuing the previous example, end will be ")."
-            end = value[m.end():]
-            number = m.group(1)
-            unit = m.group(2)
 
-            # Note that sometimes the regex will match with a 'start' that
-            # we don't want. Ex: In "127.0.0.0{IP}" it will match the final
-            # "0.0{IP}". But for now we are not handling these cases.
-            
-            if format == 'html':
-                # The whole number with unit is surrounded by a
-                # "phy-quantity" span. The number if surrounded by a
-                # "phy-number" span and the unit is surrounded by a
-                # "phy-unit" span
-                return RawInline(
-                    "html",
-                    start +
-                    "<span class=\"phy-quantity\">" +
-                    "<span class=\"phy-number\">" + number.strip() +
-                    "</span>" +  # End of phy-number span
-                    "<span class=\"phy-unit\">" + unit.strip() +
-                    "</span>" +  # End of phy-unit span
-                    "</span>" +  # End of phy-quantity span
-                    end
-                )
-            elif format == 'latex':
-                return RawInline(
-                    "latex",
-                    "\SI{" + number.strip() + "}{" + unit.strip() + "}")
-            else:
-                return Str(number.strip() + " " + unit.strip())
+def replace_unit(key, value, format, meta):
+    """
+    Try to perform the replacements in `value` according to `pattern`.
+
+    If nothing is replaced the this function does not return any value. If
+    a replacement is performed then a `RawInline` object is returned to
+    pandoc.
+
+    Parameters
+    ----------
+
+    key : (string) The pandoc element type. Here we check if it is 'Str'.
+
+    value : (string) The original text.
+    format : (string) The output format of pandoc.
+    meta : Not used here.
+    """
+    if key == 'Str':
+        if format == 'html' or format == 'html5':
+            replacement = ("<span class=\"phy-quantity\">"
+                           # First regex group is the number
+                           "<span class=\"phy-number\">\\1</span>"
+                           # First regex group is the unit
+                           "<span class=\"phy-unit\">\\2</span>"
+                           "</span>")
+            newValue = pattern.sub(replacement, value)
+            if newValue != value:
+                return RawInline("html", newValue)
+
+        elif format == 'latex':
+            replacement = "\\SI{\\1}{\\2}"
+            newValue = pattern.sub(replacement, value)
+            if newValue != value:
+                return RawInline("latex", newValue)
 
 
 if __name__ == "__main__":
-    toJSONFilter(caps)
+    toJSONFilter(replace_unit)

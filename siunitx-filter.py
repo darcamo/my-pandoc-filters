@@ -20,7 +20,7 @@ For all the other formats "NUMBER{UNIT}" will be replaced with "NUMBER
 UNIT".
 """
 
-from pandocfilters import toJSONFilter, Str, RawInline
+from pandocfilters import toJSONFilter, Str, RawInline, Math
 import re
 
 
@@ -69,6 +69,30 @@ def replace_unit(key, value, format, meta):
             newValue = pattern.sub(replacement, value)
             if newValue != value:
                 return RawInline("latex", newValue)
+
+        else:
+            # For other formats we just add a space between the number and
+            # the unit
+            replacement = "\\1 \\2"
+            newValue = pattern.sub(replacement, value)
+            if newValue != value:
+                return Str(newValue)
+
+    elif key == 'Math':
+        if format == 'latex':
+            mathText = value[1]
+            replacement = "\\\\SI{\\1}{\\2}"
+            newMathText = pattern.sub(replacement, mathText)
+            if newMathText != mathText:
+                value[1] = newMathText
+                return Math(value[0], value[1])
+        else:
+            mathText = value[1]
+            replacement = "\\1\\;\\\\text{\\2}"
+            newMathText = pattern.sub(replacement, mathText)
+            if newMathText != mathText:
+                value[1] = newMathText
+                return Math(value[0], value[1])
 
 
 if __name__ == "__main__":

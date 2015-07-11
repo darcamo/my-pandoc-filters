@@ -20,7 +20,11 @@ the number alone will be in a span tag with "phy-number" class and the unit
 will be in a span tag with "phy-unit" tag. You can then edit your CSS as
 desired to, for instance, add a small left margin to the phy-unit class.
 
-For all the other formats `NUMBER{UNIT}` will be replaced with `NUMBER UNIT`.
+For all the other formats `NUMBER{UNIT}` will be replaced with `NUMBER
+UNIT` (just add a space).
+
+Note that the replacements will also work inside equations, but in that
+case they will not have any span tags and just typeset as regular text.
 
 
 ## Filter Usage ##

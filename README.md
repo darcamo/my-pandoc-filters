@@ -26,6 +26,17 @@ UNIT` (just add a space).
 Note that the replacements will also work inside equations, but in that
 case they will not have any span tags and just typeset as regular text.
 
+### latex_to_org-ref ###
+
+Pandoc filter to convert from latex to org-mode using org-ref.
+
+This performs he following conversions:
+- ~ to \nbsp{}_pattern
+- \cite{bibkey} to cite:bibkey
+- \ac.*{x} to \gls.*:x
+- \ref{x} to ref:x
+- \eqref{x} to eqref:x.
+
 
 ## Filter Usage ##
 

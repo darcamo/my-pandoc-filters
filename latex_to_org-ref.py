@@ -57,9 +57,9 @@ def replace_unit(key, value, format, meta):
             label = value[0][2][0][1]
             acronym_form = value[0][2][1][1]
             form_to_command = {'singular+short': 'ac', 'plural+short': 'acp',
-                               'singular+full': 'acf', 'singular+abbrv': 'acs'}
+                               'singular+full': 'acrfull', 'singular+abbrv': 'acrshort'}
             # sys.stderr.write(f"key is: {key} - value is: {value}\n")
-            return Str(f"\\{form_to_command[acronym_form]}{{{label}}}")
+            return Str(f"[[{form_to_command[acronym_form]}:{label}]]")
     elif key == 'Link':
         # In case the link is a reference (\ref{something} or \eqref{something})
         # replace its converted syntax from native org-mode to org-ref syntax
